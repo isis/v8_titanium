@@ -191,7 +191,7 @@ if [ "$CLEAN" = "1" ]; then
 fi
 
 if [ "$LIB_VERSION" = "all" ]; then
-	LIB_VERSION="armeabi armeabi-v7a x86"
+	LIB_VERSION="armeabi armeabi-v7a x86 mipsel"
 fi
 
 if [ "$MODE" = "all" ]; then
@@ -203,18 +203,29 @@ if [ "$THIRDPARTY" = "0" ]; then
 		# Switch between arm and x86/ia32 arch
 		echo $build_lib_version | grep '^arm' 1>/dev/null 2>/dev/null
 		IS_ARM=$?
+		echo $build_lib_version | grep '^mipsel' 1>/dev/null 2>/dev/null
+		IS_MIPSEL=$?
 		
 		if [ $IS_ARM -eq 0 ]; then
 			ARCH='arm'
 			BUILD_ARCH='arm'
 		else
-			REV=`echo ${PLATFORM_VERSION} | sed s/android-//`
-			if [ $REV -lt 9 ]; then
-				echo "Cannot build x86 with android rev lower than SDK 9; use -p option to specify a different SDK"
-				exit 1
-			fi;
-			ARCH='x86'
-			BUILD_ARCH='ia32'
+		   REV=`echo ${PLATFORM_VERSION} | sed s/android-//`
+		   if [ $IS_MIPSEL -eq 0 ]; then
+		      if [ $REV -lt 9 ]; then
+			     echo "Cannot build mips with android rev lower than SDK 9; use -p option to specify a different SDK"
+                  exit 1
+		     fi;
+		     ARCH='mips'
+		     BUILD_ARCH='mipsel'
+		   else
+		     if [ $REV -lt 9 ]; then
+		          echo "Cannot build x86 with android rev lower than SDK 9; use -p option to specify a different SDK"
+		          exit 1
+		     fi;
+		     ARCH='x86'
+		     BUILD_ARCH='ia32'
+		   fi
 		fi
 		
 		buildToolchain
